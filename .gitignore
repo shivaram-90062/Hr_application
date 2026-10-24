@@ -1,0 +1,29 @@
+# ===========================
+# Java / Maven (Backend)
+# ===========================
+hr_attendance_backend/target/
+hr_attendance_backend/*.log
+hr_attendance_backend/startup.log
+hr_attendance_backend/backend.log
+hr_attendance_backend/backend_startup.log
+hr_attendance_backend/startup_debug.log
+hr_attendance_backend/compile_out.txt
+hr_attendance_backend/uploads/
+
+# ===========================
+# Node / React Native (Frontend)
+# ===========================
+hr_frontend_app/node_modules/
+hr_frontend_app/.expo/
+hr_frontend_app/.idea/
+hr_frontend_app/app-7vshm2afcow1/
+
+# ===========================
+# General
+# ===========================
+*.zip
+.vscode/
+*.class
+*.jar
+*.war
+*.ear

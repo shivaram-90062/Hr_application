@@ -1,0 +1,66 @@
+name: Deploy HR Frontend to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup pnpm FIRST (🔥 critical)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+          run_install: false
+
+      # 3️⃣ Setup Node.js (with pnpm cache)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: app-7vshm2afcow1/pnpm-lock.yaml
+
+      # 4️⃣ Install dependencies
+      - name: Install dependencies
+        working-directory: app-7vshm2afcow1
+        run: pnpm install --frozen-lockfile
+
+      # 5️⃣ Build frontend
+      - name: Build frontend
+        working-directory: app-7vshm2afcow1
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_APP_ID: app-7vshm2afcow1
+        run: pnpm build
+
+      # 6️⃣ Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      # 7️⃣ Deploy to S3
+      - name: Deploy to S3
+        working-directory: app-7vshm2afcow1
+        run: |
+          aws s3 sync dist/ s3://hrattendancewebapp \
+            --delete \
+            --cache-control "no-cache"
+
+      # 8️⃣ Invalidate CloudFront
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id E20D2QLV0MB9XL \
+            --paths "/*"
